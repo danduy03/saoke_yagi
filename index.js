@@ -79,7 +79,8 @@ function CTTU_10_12() {
 
     // 1810/09/2024
     const isDateLine = (line) => line.match(/^(\d+)(1[0-2]\/09\/2024)$/);
-    const isMoney = (line) => /^(\d{1,3}(?:\.\d{3})*)(.*)$/.exec(line);
+    const isMoney = (line) => /^(\d{1,3}(?:\.\d{3})*)$/.exec(line);
+    const isTime = (line) => /^(\d{2}:\d{2}:\d{2})$/.exec(line);
 
     let i = 0;
     const allMoney = [];
@@ -90,6 +91,8 @@ function CTTU_10_12() {
       const [_, index, date] = isDateLine(lines[i].trim()) || [];
       if (index && date) {
         const time = lines[++i];
+        if (!isTime(time)) continue;
+
         let desc = "";
         while (true) {
           i++;
@@ -99,6 +102,7 @@ function CTTU_10_12() {
 
         transactions.push({
           date: date + " " + time,
+          ct_num: index,
           desc: desc.trim().replaceAll("  ", " "),
         });
         continue;
@@ -115,8 +119,10 @@ function CTTU_10_12() {
 
     console.log(transactions.length, allMoney.length);
 
+    transactions.forEach((t, i) => {
+      t.money = allMoney[i];
+    });
     // fs.writeFileSync("./output/CTTU.txt", text);
-
     fs.writeFileSync(
       "./output/CTTU.json",
       JSON.stringify(transactions, null, 4)
