@@ -37,6 +37,7 @@ async function main() {
   console.log(transactions);
 
   let table = new DataTable("#myTable", {
+    searchHighlight: true,
     data: transactions,
     columns: [
       { data: "date", name: "date" },
@@ -53,6 +54,12 @@ async function main() {
       { data: "desc", name: "desc" },
       { data: "page", name: "page" },
     ],
+  });
+
+  table.on("draw", function () {
+    var body = $(table.table().body());
+    body.unhighlight();
+    body.highlight(table.search());
   });
 }
 
