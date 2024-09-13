@@ -1,0 +1,39 @@
+* {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    margin: auto;
+    max-width: 1248px;
+    min-height: 100vh;
+    color: #222;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#myTable {
+    width: 100%;
+}
+
+h1,
+h3 {
+    text-align: center;
+}
+
+#loading {
+    font-size: larger;
+    text-align: center;
+    width: 100%;
+    margin: 50px;
+}
+
+table.dataTable span.highlight {
+    background-color: #9cddf9;
+    border-radius: 0.28571429rem;
+}
+
+#sumary {
+    text-align: right;
+}

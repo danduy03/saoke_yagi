@@ -1,4 +1,5 @@
 const loadingDiv = document.querySelector("#loading");
+const sumaryDiv = document.querySelector("#sumary");
 
 window.onload = () => {
   try {
@@ -61,6 +62,26 @@ async function main() {
     body.unhighlight();
     body.highlight(table.search());
   });
+
+  const total = transactions.map((t) => t.money).reduce((a, b) => a + b, 0);
+  const avg = total / transactions.length;
+
+  let max = 0,
+    min = Infinity;
+  transactions.forEach((t) => {
+    if (t.money > max) max = t.money;
+    if (t.money < min) min = t.money;
+  });
+
+  sumaryDiv.innerHTML = [
+    ["Giao dịch", formatNumber(transactions.length)],
+    ["Tổng tiền", formatMoney(total)],
+    ["Trung bình", formatMoney(avg)],
+    ["Cao nhất", formatMoney(max)],
+    ["Thấp nhất", formatMoney(min)],
+  ]
+    .map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`)
+    .join("");
 }
 
 async function getBlobFromUrlWithProgress(url, progressCallback) {
@@ -110,4 +131,18 @@ function formatSize(size, fixed = 0) {
     unitIndex++;
   }
   return size.toFixed(fixed) + units[unitIndex];
+}
+
+function formatNumber(num) {
+  return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+}
+
+const formatter = {
+  money: new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }),
+};
+function formatMoney(money) {
+  return formatter.money.format(money);
 }
