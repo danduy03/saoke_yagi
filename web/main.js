@@ -42,6 +42,10 @@ async function main() {
   // render table
   let table = new DataTable("#myTable", {
     searchHighlight: true,
+    search: {
+      regex: true,
+      //   smart: true,
+    },
     data: transactions,
     columns: [
       { data: "date", name: "date" },
@@ -65,6 +69,12 @@ async function main() {
     var body = $(table.table().body());
     body.unhighlight();
     body.highlight(table.search());
+    table
+      .search()
+      .split(" ")
+      .forEach((word) => {
+        body.highlight(word);
+      });
   });
 
   // sumary
@@ -91,7 +101,7 @@ async function main() {
       .join("") +
     "</table>";
 
-  // chart
+  // chart money range
   const ranges = [
     [1000, 10000],
     [10000, 20000],
@@ -130,12 +140,15 @@ async function main() {
         {
           label: "Tổng giao dịch",
           data: dataset.map((c) => c.count),
+          minBarLength: 2,
         },
       ],
     },
   });
 
   sumaryDiv.appendChild(canvas);
+
+  // words statistic
 }
 
 async function getBlobFromUrlWithProgress(url, progressCallback) {
