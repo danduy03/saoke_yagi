@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sao kê MTTQ - Bảo Yagi</title>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="//cdn.datatables.net/2.1.6/css/dataTables.dataTables.min.css">
+    <script src="https://cdn.datatables.net/2.1.6/js/dataTables.js"></script>
+
+    <style>
+        body {
+            margin: auto;
+            max-width: 1248px;
+            min-height: 100vh;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        h1,
+        h3 {
+            text-align: center;
+        }
+
+        #loading {
+            font-size: larger;
+            text-align: center;
+            width: 100%;
+            margin: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>VAR Sao kê MTTQ - Bão Yagi</h1>
+
+    <h3>Dữ liệu được cung cấp bởi <a target="_blank"
+            href="https://www.facebook.com/thongtinchinhphu/posts/pfbid03YkRTKZ5WjeHwBavPQbP7EShonj9tTExgY26gNhvQdiEsbjdsLWnzWEoQE1bU9SBl">MTTQ
+            Việt Nam</a>, xử lý dữ liệu và web bởi <a target="_blank"
+            href="https://github.com/hoangTran0410">HoangTran</a>, <a target="_blank" href="">Source code</a>
+    </h3>
+
+    <table id="myTable">
+        <thead>
+            <tr>
+                <th>Ngày</th>
+                <th>Mã giao dịch</th>
+                <th>Số tiền</th>
+                <th>Chi tiết giao dịch</th>
+                <th>Trang PDF</th>
+            </tr>
+        </thead>
+    </table>
+
+    <div id="loading">Đang tải dữ liêu...</div>
+
+    <script src="./main.js"></script>
+</body>
+
+</html>
