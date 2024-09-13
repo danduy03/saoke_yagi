@@ -19,6 +19,8 @@ async function main() {
   );
   const content = await data.text();
 
+  loadingDiv.style.display = "none";
+
   const lines = content.split("\n");
   const transactions = [];
   for (let i = 1; i < lines.length; i++) {
