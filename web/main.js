@@ -46,6 +46,21 @@ async function main() {
       regex: true,
       //   smart: true,
     },
+    language: {
+      search: "Tìm: ",
+      searchPlaceholder: "Mã, nội dung, tiền..",
+      emptyTable: "Không có dữ liệu",
+      info: "Hiển thị _START_ → _END_ / _TOTAL_ giao dịch",
+      infoFiltered: "(Lọc từ _MAX_ giao dịch)",
+      lengthMenu: "Hiện _MENU_ giao dịch",
+      zeroRecords: "Không tìm thấy giao dịch nào",
+      paginate: {
+        first: "«",
+        last: "»",
+        next: ">",
+        previous: "<",
+      },
+    },
     data: transactions,
     columns: [
       { data: "date", name: "date" },
