@@ -1,5 +1,6 @@
 const loadingDiv = document.querySelector("#loading");
 const sumaryDiv = document.querySelector("#sumary");
+const themeBtn = document.querySelector("#theme");
 
 window.onload = () => {
   try {
@@ -10,6 +11,10 @@ window.onload = () => {
 };
 
 async function main() {
+  themeBtn.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+  });
+
   // fetch data
   const data = await getBlobFromUrlWithProgress(
     "../output/data.csv",
@@ -24,7 +29,7 @@ async function main() {
   loadingDiv.style.display = "none";
 
   // prepare data
-  const lines = content.split("\n");
+  const lines = content.split("\n").filter(Boolean);
   const transactions = [];
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i];
