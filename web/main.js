@@ -45,7 +45,7 @@ async function main() {
         data: "money",
         render: (data, type) => {
           var number = DataTable.render
-            .number(",", ".", 0, "", " ₫")
+            .number(",", ".", 0, "", "")
             .display(data);
           return number;
         },
