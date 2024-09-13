@@ -10,6 +10,7 @@ window.onload = () => {
 };
 
 async function main() {
+  // fetch data
   const data = await getBlobFromUrlWithProgress(
     "../output/data.csv",
     (progress) => {
@@ -22,6 +23,7 @@ async function main() {
 
   loadingDiv.style.display = "none";
 
+  // prepare data
   const lines = content.split("\n");
   const transactions = [];
   for (let i = 1; i < lines.length; i++) {
@@ -37,6 +39,7 @@ async function main() {
   }
   console.log(transactions);
 
+  // render table
   let table = new DataTable("#myTable", {
     searchHighlight: true,
     data: transactions,
@@ -57,12 +60,14 @@ async function main() {
     ],
   });
 
+  // highlight
   table.on("draw", function () {
     var body = $(table.table().body());
     body.unhighlight();
     body.highlight(table.search());
   });
 
+  // sumary
   const total = transactions.map((t) => t.money).reduce((a, b) => a + b, 0);
   const avg = total / transactions.length;
 
@@ -73,15 +78,64 @@ async function main() {
     if (t.money < min) min = t.money;
   });
 
-  sumaryDiv.innerHTML = [
-    ["Giao dịch", formatNumber(transactions.length)],
-    ["Tổng tiền", formatMoney(total)],
-    ["Trung bình", formatMoney(avg)],
-    ["Cao nhất", formatMoney(max)],
-    ["Thấp nhất", formatMoney(min)],
-  ]
-    .map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`)
-    .join("");
+  sumaryDiv.innerHTML =
+    "<table>" +
+    [
+      ["Giao dịch", formatNumber(transactions.length)],
+      ["Tổng tiền", formatMoney(total)],
+      ["Trung bình", formatMoney(avg)],
+      ["Cao nhất", formatMoney(max)],
+      ["Thấp nhất", formatMoney(min)],
+    ]
+      .map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`)
+      .join("") +
+    "</table>";
+
+  // chart
+  const ranges = [
+    [1000, 10000],
+    [10000, 20000],
+    [20000, 50000],
+    [50000, 100000],
+    [100000, 200000],
+    [200000, 500000],
+    [500000, 1000000],
+    [1000000, 5000000],
+    [5000000, 10000000],
+    [10000000, 50000000],
+    [50000000, 100000000],
+    [100000000, 500000000],
+    [500000000, 1000000000],
+  ];
+  // count transaction in each range
+  const dataset = ranges.map((range) => {
+    return {
+      count: transactions.filter(
+        (t) => t.money >= range[0] && t.money < range[1]
+      ).length,
+      name: shortenMoney(range[0]) + " - " + shortenMoney(range[1]),
+    };
+  });
+  console.log(dataset);
+
+  // render chart
+  const canvas = document.createElement("canvas");
+  canvas.id = "chart";
+  const ctx = canvas.getContext("2d");
+  const chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: dataset.map((c) => c.name),
+      datasets: [
+        {
+          label: "Tổng giao dịch",
+          data: dataset.map((c) => c.count),
+        },
+      ],
+    },
+  });
+
+  sumaryDiv.appendChild(canvas);
 }
 
 async function getBlobFromUrlWithProgress(url, progressCallback) {
@@ -135,6 +189,19 @@ function formatSize(size, fixed = 0) {
 
 function formatNumber(num) {
   return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+}
+
+function shortenMoney(money, fixed = 0) {
+  money = Number(money);
+  if (!money) return "?";
+
+  const units = ["", "K", "M", "B"];
+  let unitIndex = 0;
+  while (money >= 1000 && unitIndex < units.length - 1) {
+    money /= 1000;
+    unitIndex++;
+  }
+  return money.toFixed(fixed) + units[unitIndex];
 }
 
 const formatter = {
