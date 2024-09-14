@@ -11,9 +11,14 @@ window.onload = () => {
 };
 
 async function main() {
+  // theme
   themeBtn.addEventListener("click", () => {
     document.body.classList.toggle("dark");
+    localStorage.setItem("theme", document.body.classList.contains("dark"));
   });
+  if (localStorage.getItem("theme") === "true") {
+    document.body.classList.add("dark");
+  }
 
   // fetch data
   const data = await getBlobFromUrlWithProgress(
@@ -48,11 +53,11 @@ async function main() {
   let table = new DataTable("#myTable", {
     searchHighlight: true,
     search: {
-      regex: true,
-      //   smart: true,
+      // regex: true,
+      smart: true,
     },
     language: {
-      search: "Tìm: ",
+      search: 'Tìm (bọc trong dấu " để tìm chính xác): ',
       searchPlaceholder: "Ngày, mã, nội dung, tiền..",
       emptyTable: "Không có dữ liệu",
       info: "Hiển thị _START_ → _END_ / _TOTAL_ giao dịch",
@@ -86,15 +91,18 @@ async function main() {
 
   // highlight
   table.on("draw", function () {
-    var body = $(table.table().body());
+    const body = $(table.table().body());
     body.unhighlight();
     body.highlight(table.search());
-    table
-      .search()
-      .split(" ")
-      .forEach((word) => {
+    const search = table.search();
+
+    if (search.startsWith('"') && search.endsWith('"')) {
+      body.highlight(search.substring(1, search.length - 1));
+    } else {
+      search.split(" ").forEach((word) => {
         body.highlight(word);
       });
+    }
   });
 
   // sumary
