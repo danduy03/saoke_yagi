@@ -102,6 +102,7 @@ async function main() {
             // Create select element
             let select = document.createElement("select");
             select.add(new Option(""));
+            select.classList.add("dt-input");
             column.footer().replaceChildren(select);
 
             // Apply listener for user change in value
@@ -122,7 +123,7 @@ async function main() {
             let delay;
             // Create input element and add event listener
             $(
-              '<input type="text" placeholder="Tìm ' +
+              '<input class="dt-input" type="text" placeholder="Tìm ' +
                 title +
                 '" style="max-width: 80px" />'
             )
