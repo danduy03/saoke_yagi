@@ -90,6 +90,76 @@ async function main() {
       { data: "desc", name: "desc" },
       { data: "page", name: "page" },
     ],
+    initComplete: function () {
+      // Apply the search column
+      this.api()
+        .columns()
+        .every(function () {
+          var column = this;
+          var title = column.footer().textContent;
+
+          if (["Ngày", "Bank"].indexOf(title) != -1) {
+            // Create select element
+            let select = document.createElement("select");
+            select.add(new Option(""));
+            column.footer().replaceChildren(select);
+
+            // Apply listener for user change in value
+            select.addEventListener("change", function () {
+              column.search(select.value, { exact: false }).draw();
+            });
+
+            // Add list of options
+            column
+              .data()
+              .map((d) => d.split(" ")[0])
+              .unique()
+              .sort()
+              .each(function (d, j) {
+                select.add(new Option(d));
+              });
+          } else {
+            // Create input element and add event listener
+            $(
+              '<input type="text" placeholder="Tìm ' +
+                title +
+                '" style="max-width: 80px" />'
+            )
+              .appendTo($(column.footer()).empty())
+              .on("keyup change clear", function () {
+                if (column.search() !== this.value) {
+                  column.search(this.value).draw();
+                }
+              });
+          }
+        });
+
+      // Apply the search column delay: https://datatables.net/forums/discussion/comment/127222/#Comment_127222
+      var api = this.api();
+      var searchWait = 0;
+      var searchWaitInterval;
+      // Grab the datatables input box and alter how it is bound to events
+      $(".dataTables_filter input")
+        .unbind() // Unbind previous default bindings
+        .bind("input", function (e) {
+          // Bind our desired behavior
+          var item = $(this);
+          searchWait = 0;
+          if (!searchWaitInterval)
+            searchWaitInterval = setInterval(function () {
+              searchTerm = $(item).val();
+              // if(searchTerm.length >= 3 || e.keyCode == 13) {
+              clearInterval(searchWaitInterval);
+              searchWaitInterval = "";
+              // Call the API search function
+              api.search(searchTerm).draw();
+              searchWait = 0;
+              // }
+              searchWait++;
+            }, 1000);
+          return;
+        });
+    },
   });
 
   // highlight
