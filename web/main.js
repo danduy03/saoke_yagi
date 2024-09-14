@@ -40,10 +40,11 @@ async function main() {
     const parts = line.split(",");
     transactions.push({
       date: parts[0],
-      ct_num: parts[1],
-      money: Number(parts[2].replace(/\./g, "")),
-      desc: parts[3],
-      page: parts[4],
+      bank: parts[1],
+      id: parts[2],
+      money: Number(parts[3].replace(/\./g, "")),
+      desc: parts[4],
+      page: parts[5],
     });
   }
   console.log(transactions);
@@ -74,7 +75,8 @@ async function main() {
     data: transactions,
     columns: [
       { data: "date", name: "date" },
-      { data: "ct_num", name: "ct_num" },
+      { data: "bank", name: "bank" },
+      { data: "id", name: "id" },
       {
         data: "money",
         render: (data, type) => {

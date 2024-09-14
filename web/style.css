@@ -73,6 +73,7 @@ table.dataTable span.highlight {
     display: flex;
     align-items: center;
     justify-content: space-around;
+    flex-wrap: wrap;
 }
 
 #sumary table {
@@ -81,4 +82,17 @@ table.dataTable span.highlight {
 
 canvas#chart {
     height: 300px !important;
+}
+
+a {
+    color: blue;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.dark a {
+    color: yellow;
 }

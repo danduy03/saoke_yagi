@@ -4,14 +4,17 @@
 
 Code chuyển đổi nội dung sao kê từ file PDF sang JSON và CSV
 
-File PDF lấy từ [Đây](https://cdn.thuvienphapluat.vn/phap-luat/2022-2/PH/120924/thong_tin_ung_ho_qua_tsk_vcb_0011001932418_tu_01_09_den10_09_2024.pdf)
+File PDF lấy từ
 
-Facebook [Thông tin chính phủ](https://www.facebook.com/thongtinchinhphu/posts/pfbid03YkRTKZ5WjeHwBavPQbP7EShonj9tTExgY26gNhvQdiEsbjdsLWnzWEoQE1bU9SBl)
+- [VCB: Mặt Trận Tổ Quốc Việt Nam (01-10/9)](https://www.facebook.com/share/p/sRF9ZUfN1kMidLC2/)
+- [BIDV: Mặt Trận Tổ Quốc Việt Nam (01-12/9)](https://www.facebook.com/share/p/wc76KCcYVEurwfpE/)
+- [Vietinbank: Ban Cứu Trợ Trung Ương Việt Nam (10-12/9)](https://www.facebook.com/share/p/ckeiR1w2P6gJFsVw/)
+- [Agribank: Quỹ Cứu trợ TP Hà Nội (tới 13/9)](https://www.facebook.com/share/p/CjS3ZFRjwFSXUbXT/)
 
-Đầu vào:
+Đầu vào PDF: [Xem](./data/input/)
 ![pdf](./screenshot/pdf.png)
 
-Kết quả:
+Kết quả (CSV + JSON): [Xem](./data/output/)
 
 ![csv](./screenshot/csv.png)
 
