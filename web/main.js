@@ -119,6 +119,7 @@ async function main() {
                 select.add(new Option(d));
               });
           } else {
+            let delay;
             // Create input element and add event listener
             $(
               '<input type="text" placeholder="Tìm ' +
@@ -128,36 +129,13 @@ async function main() {
               .appendTo($(column.footer()).empty())
               .on("keyup change clear", function () {
                 if (column.search() !== this.value) {
-                  column.search(this.value).draw();
+                  if (delay) clearTimeout(delay);
+                  delay = setTimeout(() => {
+                    column.search(this.value).draw();
+                  }, 350);
                 }
               });
           }
-        });
-
-      // Apply the search column delay: https://datatables.net/forums/discussion/comment/127222/#Comment_127222
-      var api = this.api();
-      var searchWait = 0;
-      var searchWaitInterval;
-      // Grab the datatables input box and alter how it is bound to events
-      $(".dataTables_filter input")
-        .unbind() // Unbind previous default bindings
-        .bind("input", function (e) {
-          // Bind our desired behavior
-          var item = $(this);
-          searchWait = 0;
-          if (!searchWaitInterval)
-            searchWaitInterval = setInterval(function () {
-              searchTerm = $(item).val();
-              // if(searchTerm.length >= 3 || e.keyCode == 13) {
-              clearInterval(searchWaitInterval);
-              searchWaitInterval = "";
-              // Call the API search function
-              api.search(searchTerm).draw();
-              searchWait = 0;
-              // }
-              searchWait++;
-            }, 1000);
-          return;
         });
     },
   });
