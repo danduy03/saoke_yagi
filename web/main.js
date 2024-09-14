@@ -52,6 +52,7 @@ async function main() {
   // render table
   loadingDiv.innerHTML = "Đang tạo bảng...";
   let table = new DataTable("#myTable", {
+    searchDelay: 350,
     searchHighlight: true,
     search: {
       // regex: true,
