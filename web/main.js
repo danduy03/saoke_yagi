@@ -147,7 +147,7 @@ async function main() {
     [500000000, 1000000000],
   ];
   // count transaction in each range
-  const dataset = ranges.map((range) => {
+  const totalTransactionsByRange = ranges.map((range) => {
     return {
       count: transactions.filter(
         (t) => t.money >= range[0] && t.money < range[1]
@@ -155,7 +155,18 @@ async function main() {
       name: shortenMoney(range[0]) + " - " + shortenMoney(range[1]),
     };
   });
-  console.log(dataset);
+  console.log(totalTransactionsByRange);
+
+  const totalMoneyByRange = ranges.map((range) => {
+    return {
+      count: transactions
+        .filter((t) => t.money >= range[0] && t.money < range[1])
+        .map((t) => t.money)
+        .reduce((a, b) => a + b, 0),
+      name: shortenMoney(range[0]) + " - " + shortenMoney(range[1]),
+    };
+  });
+  console.log(totalMoneyByRange);
 
   // render chart
   const canvas = document.createElement("canvas");
@@ -164,14 +175,41 @@ async function main() {
   const chart = new Chart(ctx, {
     type: "bar",
     data: {
-      labels: dataset.map((c) => c.name),
+      labels: totalTransactionsByRange.map((c) => c.name),
       datasets: [
         {
           label: "Tổng giao dịch",
-          data: dataset.map((c) => c.count),
+          data: totalTransactionsByRange.map((c) => c.count),
           minBarLength: 2,
+          yAxisID: "count",
+        },
+        {
+          label: "Tổng tiền",
+          data: totalMoneyByRange.map((c) => c.count),
+          minBarLength: 2,
+          yAxisID: "money",
         },
       ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "top",
+        },
+        title: {
+          display: true,
+          text: "Tổng tiền/giao dịch theo giá tiền",
+        },
+      },
+      scales: {
+        count: {
+          position: "left",
+        },
+        money: {
+          position: "right",
+        },
+      },
     },
   });
 
