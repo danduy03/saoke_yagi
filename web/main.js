@@ -81,33 +81,34 @@ async function main() {
       {
         data: "money",
         render: (data, type) => {
-          var number = DataTable.render
-            .number(",", ".", 0, "", "")
-            .display(data);
-          return number;
+          return DataTable.render.number(",", ".", 0, "", "").display(data);
         },
+        // type: "num-fmt",
       },
       { data: "desc", name: "desc" },
-      { data: "page", name: "page" },
+      { data: "page", name: "page", type: "num-fmt" },
     ],
     initComplete: function () {
       // Apply the search column
       this.api()
         .columns()
         .every(function () {
-          var column = this;
-          var title = column.footer().textContent;
+          const column = this;
+          const title = column.header().textContent;
 
           if (["Ngày", "Bank"].indexOf(title) != -1) {
             // Create select element
             let select = document.createElement("select");
             select.add(new Option(""));
             select.classList.add("dt-input");
-            column.footer().replaceChildren(select);
+            column.header().appendChild(select);
 
             // Apply listener for user change in value
             select.addEventListener("change", function () {
               column.search(select.value, { exact: false }).draw();
+            });
+            select.addEventListener("click", function (e) {
+              e.stopPropagation();
             });
 
             // Add list of options
@@ -125,9 +126,9 @@ async function main() {
             $(
               '<input class="dt-input" type="text" placeholder="Tìm ' +
                 title +
-                '" style="max-width: 80px" />'
+                '" style="max-width: 80px;display: block" />'
             )
-              .appendTo($(column.footer()).empty())
+              .appendTo($(column.header()))
               .on("keyup change clear", function () {
                 if (column.search() !== this.value) {
                   if (delay) clearTimeout(delay);
@@ -135,6 +136,9 @@ async function main() {
                     column.search(this.value).draw();
                   }, 350);
                 }
+              })
+              .on("click", function (e) {
+                e.stopPropagation();
               });
           }
         });
