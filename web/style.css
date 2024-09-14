@@ -46,8 +46,9 @@ body.dark {
     background-color: #555;
 }
 
-#myTable {
+#myTable_wrapper {
     width: 100%;
+    max-width: 100%;
 }
 
 h1,

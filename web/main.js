@@ -17,7 +17,7 @@ async function main() {
 
   // fetch data
   const data = await getBlobFromUrlWithProgress(
-    "../output/data.csv",
+    "../data/output/all.csv",
     (progress) => {
       loadingDiv.innerHTML = `Đang tải dữ liêu... ${formatSize(
         progress.loaded
@@ -26,9 +26,8 @@ async function main() {
   );
   const content = await data.text();
 
-  loadingDiv.style.display = "none";
-
   // prepare data
+  loadingDiv.innerHTML = "Đang xử lý dữ liệu...";
   const lines = content.split("\n").filter(Boolean);
   const transactions = [];
   for (let i = 1; i < lines.length; i++) {
@@ -45,6 +44,7 @@ async function main() {
   console.log(transactions);
 
   // render table
+  loadingDiv.innerHTML = "Đang tạo bảng...";
   let table = new DataTable("#myTable", {
     searchHighlight: true,
     search: {
@@ -53,7 +53,7 @@ async function main() {
     },
     language: {
       search: "Tìm: ",
-      searchPlaceholder: "Mã, nội dung, tiền..",
+      searchPlaceholder: "Ngày, mã, nội dung, tiền..",
       emptyTable: "Không có dữ liệu",
       info: "Hiển thị _START_ → _END_ / _TOTAL_ giao dịch",
       infoFiltered: "(Lọc từ _MAX_ giao dịch)",
@@ -98,6 +98,7 @@ async function main() {
   });
 
   // sumary
+  loadingDiv.innerHTML = "Đang phân tích dữ liệu...";
   const total = transactions.map((t) => t.money).reduce((a, b) => a + b, 0);
   const avg = total / transactions.length;
 
@@ -168,7 +169,7 @@ async function main() {
 
   sumaryDiv.appendChild(canvas);
 
-  // words statistic
+  loadingDiv.style.display = "none";
 }
 
 async function getBlobFromUrlWithProgress(url, progressCallback) {

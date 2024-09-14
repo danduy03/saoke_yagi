@@ -5,14 +5,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "parse": "node parser/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "pdf-parse": "^1.1.1",
-    "pdf2json": "^3.1.4",
-    "pdfreader": "^3.0.5"
+    "pdf-data-parser": "^1.2.15"
   }
 }
