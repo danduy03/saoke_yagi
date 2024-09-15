@@ -26,15 +26,17 @@ async function main() {
   }
 
   // fetch data
-  const data = await getBlobFromUrlWithProgress(
-    "../data/output/all.csv",
+  const response = await getBlobFromUrlWithProgress(
+    "../data/output/all.csv.gz",
     (progress) => {
       loadingDiv.innerHTML = `Đang tải dữ liêu... ${formatSize(
         progress.loaded
       )}/${formatSize(progress.total)} (${formatSize(progress.speed)}/s)`;
     }
   );
-  const content = await data.text();
+  const compressedData = new Uint8Array(await response.arrayBuffer());
+  const content = pako.inflate(compressedData, { to: "string" });
+  // const content = await response.text();
 
   // prepare data
   loadingDiv.innerHTML = "Đang xử lý dữ liệu...";
