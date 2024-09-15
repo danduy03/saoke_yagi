@@ -12,9 +12,6 @@ window.onload = () => {
 
 async function main() {
   // canvas for chart
-  const canvas = document.createElement("canvas");
-  canvas.id = "chart";
-  const ctx = canvas.getContext("2d");
 
   // theme
   themeBtn.addEventListener("click", () => {
@@ -26,17 +23,22 @@ async function main() {
   }
 
   // fetch data
+  const fetchZip = true;
   const response = await getBlobFromUrlWithProgress(
-    "../data/output/all.csv.gz",
+    "../data/output/all.csv" + (fetchZip ? ".gz" : ""),
     (progress) => {
       loadingDiv.innerHTML = `Đang tải dữ liêu... ${formatSize(
         progress.loaded
       )}/${formatSize(progress.total)} (${formatSize(progress.speed)}/s)`;
     }
   );
-  const compressedData = new Uint8Array(await response.arrayBuffer());
-  const content = pako.inflate(compressedData, { to: "string" });
-  // const content = await response.text();
+  let content;
+  if (fetchZip) {
+    const compressedData = new Uint8Array(await response.arrayBuffer());
+    content = pako.inflate(compressedData, { to: "string" });
+  } else {
+    content = await response.text();
+  }
 
   // prepare data
   loadingDiv.innerHTML = "Đang xử lý dữ liệu...";
@@ -153,36 +155,7 @@ async function main() {
     drawCallback: function () {
       const rows = this.api().rows({ search: "applied" }).data();
       const trans = Array.from(rows);
-
-      // sumary
-      loadingDiv.innerHTML = "Đang phân tích dữ liệu...";
-      const total = trans.map((t) => t.money).reduce((a, b) => a + b, 0);
-      const avg = total / trans.length;
-
-      let max = 0,
-        min = Infinity;
-      trans.forEach((t) => {
-        if (t.money > max) max = t.money;
-        if (t.money < min) min = t.money;
-      });
-
-      sumaryDiv.innerHTML =
-        "<table>" +
-        (trans.length < transactions.length
-          ? `<tr><td colspan='2'>Thống kê ${trans.length} dữ liệu đang hiển thị</td></tr>`
-          : `<tr><td colspan='2'>Thống kê tổng</td></tr>`) +
-        [
-          ["Giao dịch", formatNumber(trans.length)],
-          ["Tổng tiền", formatMoney(total)],
-          ["Trung bình", formatMoney(avg)],
-          ["Cao nhất", formatMoney(max)],
-          ["Thấp nhất", formatMoney(min)],
-        ]
-          .map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`)
-          .join("") +
-        "</table>";
-
-      sumaryDiv.appendChild(canvas);
+      drawSummary(trans, transactions);
     },
   });
 
@@ -201,6 +174,44 @@ async function main() {
       });
     }
   });
+
+  loadingDiv.style.display = "none";
+}
+
+let canvas, chart;
+function drawSummary(trans, allTrans) {
+  // sumary
+  loadingDiv.innerHTML = "Đang phân tích dữ liệu...";
+  const total = trans.map((t) => t.money).reduce((a, b) => a + b, 0);
+  const avg = total / trans.length;
+
+  let max = 0,
+    min = Infinity;
+  trans.forEach((t) => {
+    if (t.money > max) max = t.money;
+    if (t.money < min) min = t.money;
+  });
+
+  sumaryDiv.innerHTML =
+    "<table>" +
+    `<tr><td colspan='2' style="text-align: center">
+      Thống kê
+      ${
+        trans.length < allTrans.length
+          ? `${trans.length} dữ liệu đang hiển thị`
+          : "TỔNG"
+      }
+    </td></tr>` +
+    [
+      ["Giao dịch", formatNumber(trans.length)],
+      ["Tổng tiền", formatMoney(total)],
+      ["Trung bình", formatMoney(avg)],
+      ["Cao nhất", formatMoney(max)],
+      ["Thấp nhất", formatMoney(min)],
+    ]
+      .map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`)
+      .join("") +
+    "</table>";
 
   // chart money range
   const ranges = [
@@ -221,9 +232,8 @@ async function main() {
   // count transaction in each range
   const totalTransactionsByRange = ranges.map((range) => {
     return {
-      count: transactions.filter(
-        (t) => t.money >= range[0] && t.money < range[1]
-      ).length,
+      count: trans.filter((t) => t.money >= range[0] && t.money < range[1])
+        .length,
       name: shortenMoney(range[0]) + " - " + shortenMoney(range[1]),
     };
   });
@@ -231,7 +241,7 @@ async function main() {
 
   const totalMoneyByRange = ranges.map((range) => {
     return {
-      count: transactions
+      count: trans
         .filter((t) => t.money >= range[0] && t.money < range[1])
         .map((t) => t.money)
         .reduce((a, b) => a + b, 0),
@@ -240,49 +250,59 @@ async function main() {
   });
   console.log(totalMoneyByRange);
 
-  // render chart
-  const chart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: totalTransactionsByRange.map((c) => c.name),
-      datasets: [
-        {
-          label: "Tổng giao dịch",
-          data: totalTransactionsByRange.map((c) => c.count),
-          minBarLength: 2,
-          yAxisID: "count",
+  if (!chart) {
+    canvas = document.createElement("canvas");
+    canvas.id = "chart";
+    const ctx = canvas.getContext("2d");
+    // render chart
+    chart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: totalTransactionsByRange.map((c) => c.name),
+        datasets: [
+          {
+            label: "Tổng giao dịch",
+            data: totalTransactionsByRange.map((c) => c.count),
+            minBarLength: 2,
+            yAxisID: "count",
+          },
+          {
+            label: "Tổng tiền",
+            data: totalMoneyByRange.map((c) => c.count),
+            minBarLength: 2,
+            yAxisID: "money",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+          title: {
+            display: true,
+            text: "Tổng tiền/giao dịch theo giá tiền",
+          },
         },
-        {
-          label: "Tổng tiền",
-          data: totalMoneyByRange.map((c) => c.count),
-          minBarLength: 2,
-          yAxisID: "money",
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: "top",
-        },
-        title: {
-          display: true,
-          text: "Tổng tiền/giao dịch theo giá tiền",
+        scales: {
+          count: {
+            position: "left",
+          },
+          money: {
+            position: "right",
+          },
         },
       },
-      scales: {
-        count: {
-          position: "left",
-        },
-        money: {
-          position: "right",
-        },
-      },
-    },
-  });
+    });
+  } else {
+    chart.data.labels = totalTransactionsByRange.map((c) => c.name);
+    chart.data.datasets[0].data = totalTransactionsByRange.map((c) => c.count);
+    chart.data.datasets[1].data = totalMoneyByRange.map((c) => c.count);
+    chart.update();
+  }
 
-  loadingDiv.style.display = "none";
+  sumaryDiv.appendChild(canvas);
 }
 
 async function getBlobFromUrlWithProgress(url, progressCallback) {
