@@ -143,6 +143,35 @@ async function main() {
           }
         });
     },
+    drawCallback: function () {
+      const rows = this.api().rows({ search: "applied" }).data();
+      const transactions = Array.from(rows);
+
+      // sumary
+      loadingDiv.innerHTML = "Đang phân tích dữ liệu...";
+      const total = transactions.map((t) => t.money).reduce((a, b) => a + b, 0);
+      const avg = total / transactions.length;
+
+      let max = 0,
+        min = Infinity;
+      transactions.forEach((t) => {
+        if (t.money > max) max = t.money;
+        if (t.money < min) min = t.money;
+      });
+
+      sumaryDiv.innerHTML =
+        "<table>" +
+        [
+          ["Giao dịch", formatNumber(transactions.length)],
+          ["Tổng tiền", formatMoney(total)],
+          ["Trung bình", formatMoney(avg)],
+          ["Cao nhất", formatMoney(max)],
+          ["Thấp nhất", formatMoney(min)],
+        ]
+          .map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`)
+          .join("") +
+        "</table>";
+    },
   });
 
   // highlight
@@ -160,31 +189,6 @@ async function main() {
       });
     }
   });
-
-  // sumary
-  loadingDiv.innerHTML = "Đang phân tích dữ liệu...";
-  const total = transactions.map((t) => t.money).reduce((a, b) => a + b, 0);
-  const avg = total / transactions.length;
-
-  let max = 0,
-    min = Infinity;
-  transactions.forEach((t) => {
-    if (t.money > max) max = t.money;
-    if (t.money < min) min = t.money;
-  });
-
-  sumaryDiv.innerHTML =
-    "<table>" +
-    [
-      ["Giao dịch", formatNumber(transactions.length)],
-      ["Tổng tiền", formatMoney(total)],
-      ["Trung bình", formatMoney(avg)],
-      ["Cao nhất", formatMoney(max)],
-      ["Thấp nhất", formatMoney(min)],
-    ]
-      .map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`)
-      .join("") +
-    "</table>";
 
   // chart money range
   const ranges = [

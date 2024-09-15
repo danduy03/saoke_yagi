@@ -340,12 +340,19 @@ function saveTransactions(transactions, outputPath) {
   if (!transactions?.length)
     return console.log("> ERROR: No transactions to save");
 
-  fs.writeFileSync(outputPath + ".json", JSON.stringify(transactions, null, 4));
-  console.log(
-    "Saved " + transactions.length + " transactions to " + outputPath
-  );
+  // clean data
+  const data = transactions.map((_) => ({
+    ..._,
+    // 01/09/2024 -> 1/9
+    date: _.date
+      // .replace(/0(\d\/)/g, "$1")
+      .replace("/2024", ""),
+  }));
 
-  const csv = transactions
+  fs.writeFileSync(outputPath + ".json", JSON.stringify(data, null, 4));
+  console.log("Saved " + data.length + " transactions to " + outputPath);
+
+  const csv = data
     .map(
       (t) =>
         `${t.date},${t.bank},${t.id},${t.money},${t.desc.replace(/,/g, " ")},${
@@ -354,9 +361,7 @@ function saveTransactions(transactions, outputPath) {
     )
     .join("\n");
   fs.writeFileSync(outputPath + ".csv", "date,bank,id,money,desc,page\n" + csv);
-  console.log(
-    "Saved " + transactions.length + " transactions to " + outputPath
-  );
+  console.log("Saved " + data.length + " transactions to " + outputPath);
 }
 
 function log(msg) {
