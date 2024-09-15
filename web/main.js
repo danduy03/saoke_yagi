@@ -11,6 +11,11 @@ window.onload = () => {
 };
 
 async function main() {
+  // canvas for chart
+  const canvas = document.createElement("canvas");
+  canvas.id = "chart";
+  const ctx = canvas.getContext("2d");
+
   // theme
   themeBtn.addEventListener("click", () => {
     document.body.classList.toggle("dark");
@@ -145,24 +150,27 @@ async function main() {
     },
     drawCallback: function () {
       const rows = this.api().rows({ search: "applied" }).data();
-      const transactions = Array.from(rows);
+      const trans = Array.from(rows);
 
       // sumary
       loadingDiv.innerHTML = "Đang phân tích dữ liệu...";
-      const total = transactions.map((t) => t.money).reduce((a, b) => a + b, 0);
-      const avg = total / transactions.length;
+      const total = trans.map((t) => t.money).reduce((a, b) => a + b, 0);
+      const avg = total / trans.length;
 
       let max = 0,
         min = Infinity;
-      transactions.forEach((t) => {
+      trans.forEach((t) => {
         if (t.money > max) max = t.money;
         if (t.money < min) min = t.money;
       });
 
       sumaryDiv.innerHTML =
         "<table>" +
+        (trans.length < transactions.length
+          ? `<tr><td colspan='2'>Thống kê ${trans.length} dữ liệu đang hiển thị</td></tr>`
+          : `<tr><td colspan='2'>Thống kê tổng</td></tr>`) +
         [
-          ["Giao dịch", formatNumber(transactions.length)],
+          ["Giao dịch", formatNumber(trans.length)],
           ["Tổng tiền", formatMoney(total)],
           ["Trung bình", formatMoney(avg)],
           ["Cao nhất", formatMoney(max)],
@@ -171,6 +179,8 @@ async function main() {
           .map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`)
           .join("") +
         "</table>";
+
+      sumaryDiv.appendChild(canvas);
     },
   });
 
@@ -229,9 +239,6 @@ async function main() {
   console.log(totalMoneyByRange);
 
   // render chart
-  const canvas = document.createElement("canvas");
-  canvas.id = "chart";
-  const ctx = canvas.getContext("2d");
   const chart = new Chart(ctx, {
     type: "bar",
     data: {
@@ -272,8 +279,6 @@ async function main() {
       },
     },
   });
-
-  sumaryDiv.appendChild(canvas);
 
   loadingDiv.style.display = "none";
 }
